@@ -1,4 +1,4 @@
-## Dusstech server
+## Farid creations server
 
 - Backend server for Farid creations web app.
 
