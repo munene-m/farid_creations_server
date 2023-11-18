@@ -25,7 +25,7 @@
 1. Clone the repository
 
 ```
-git clone https://github.com/munene-m/dusstech-server.git
+git clone https://github.com/munene-m/farid_creations_server.git
 
 ```
 
