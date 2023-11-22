@@ -1,4 +1,5 @@
 import { createLogger, format, transports } from "winston";
+import dotenv from "dotenv";
 import {
   MongoDBTransportInstance,
   MongoDBConnectionOptions,
@@ -7,7 +8,6 @@ const {
   MongoDB,
 }: { MongoDB: MongoDBTransportInstance } = require("winston-mongodb");
 import winstonMongoDB from "winston-mongodb";
-import dotenv from "dotenv";
 dotenv.config();
 
 const logger = createLogger({
@@ -20,7 +20,7 @@ const logger = createLogger({
     new MongoDB({
       level: "info", // Log level for this transport
       db: process.env.MONGO_CONNECTION_URL || "", // MongoDB connection URL
-      collection: "dusstech-logs", // Collection name for log entries
+      collection: "farid-server-logs", // Collection name for log entries
       options: {
         useUnifiedTopology: true, // Use the new MongoDB driver
       },
