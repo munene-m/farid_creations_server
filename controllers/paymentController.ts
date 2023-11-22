@@ -3,6 +3,11 @@ import logger from "../helpers/logging";
 import axios from "axios";
 import { Request, Response } from "express";
 
+interface accessToken {
+  access_token: string;
+  expires_in: string;
+}
+
 export const makePayment = async (req: Request, res: Response) => {
   const { amount, phoneNumber } = req.body;
   const sanitizedPhoneNumber = phoneNumber.replace(/^0|^(\+254)/, "254");
@@ -53,11 +58,9 @@ export const makePayment = async (req: Request, res: Response) => {
 
 export async function handleCallback(req: Request, res: Response) {
   try {
-    console.log(req.body);
-
     // Save the response data to your database (all responses, regardless of success)
     const paymentResponse = new payments({
-      data: req.body,
+      paymentDetails: req.body.Body.stkCallback.CallbackMetadata,
       timestamp: new Date(),
     });
 
@@ -98,7 +101,7 @@ export async function getCallbackResponse(req: Request, res: Response) {
   }
 }
 
-const generateToken = async () => {
+const generateToken = async (): Promise<string | undefined> => {
   try {
     const key = process.env.CONSUMER_KEY;
     const secret = process.env.CONSUMER_SECRET;
@@ -107,7 +110,7 @@ const generateToken = async () => {
       Authorization: "Basic" + " " + auth,
       "Content-Type": "application/json",
     };
-    const response = await axios.get(
+    const response = await axios.get<accessToken>(
       "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials",
       {
         headers,
@@ -116,5 +119,6 @@ const generateToken = async () => {
     return response.data.access_token;
   } catch (error) {
     console.log(error);
+    return;
   }
 };
