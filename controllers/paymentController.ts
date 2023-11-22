@@ -6,7 +6,7 @@ import { Request, Response } from "express";
 export const makePayment = async (req: Request, res: Response) => {
   const { amount, phoneNumber } = req.body;
   const sanitizedPhoneNumber = phoneNumber.replace(/^0|^(\+254)/, "254");
-  let { token } = req.params;
+  let token = req.token;
   const date = new Date();
   const timestamp =
     date.getFullYear() +
@@ -32,7 +32,7 @@ export const makePayment = async (req: Request, res: Response) => {
     PartyB: 174379,
     PhoneNumber: sanitizedPhoneNumber,
     // CallBackURL: "https://1623-41-90-177-141.in.ngrok.io/payment/stk",
-    CallBackURL: `${process.env.SERVER_URL}/api/paymentt/callback`,
+    CallBackURL: `${process.env.SERVER_URL}/api/payment/callback`,
     AccountReference: "Test",
     TransactionDesc: "Test",
   };
@@ -49,11 +49,11 @@ export const makePayment = async (req: Request, res: Response) => {
     })
     .catch((err) => {
       console.log(err);
-      res.status(err.response.status).json(err.message);
+      res.status(err.response?.status).json(err.message);
     });
   const payment = await payments.create({
     amount,
-    sanitizedPhoneNumber,
+    phoneNumber: sanitizedPhoneNumber,
   });
   if (payment) {
     return res.status(200).json({
@@ -65,6 +65,8 @@ export const makePayment = async (req: Request, res: Response) => {
 
 export async function handleCallback(req: Request, res: Response) {
   try {
+    console.log(req.body);
+
     // Save the response data to your database (all responses, regardless of success)
     const paymentResponse = new payments({
       data: req.body,
@@ -72,9 +74,6 @@ export async function handleCallback(req: Request, res: Response) {
     });
 
     await paymentResponse.save();
-
-    // logger.info(`Payment response sent - ${paymentResponse}`);
-    console.log(paymentResponse);
 
     // Respond with the saved payment response data
     res
@@ -86,5 +85,27 @@ export async function handleCallback(req: Request, res: Response) {
     res
       .status(500)
       .json({ message: "An error occurred while handling callback" });
+  }
+}
+
+export async function getCallbackResponse(req: Request, res: Response) {
+  try {
+    // const { transactionRef } = req.body;
+
+    const response = await payments.find();
+
+    if (!response) {
+      // logger.error(`No record found for transactionRef: ${transactionRef}`);
+      return res.status(404).json({ message: "No records found" });
+    }
+    // const success = response.ccess;
+    // res.status(200).json({ success });
+    res.status(200).json(response);
+    //   }
+  } catch (error) {
+    logger.error(error);
+    res
+      .status(500)
+      .json({ message: "An error occurred when fetching your response" });
   }
 }
