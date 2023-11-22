@@ -11,7 +11,6 @@ interface accessToken {
 export const makePayment = async (req: Request, res: Response) => {
   const { amount, phoneNumber } = req.body;
   const sanitizedPhoneNumber = phoneNumber.replace(/^0|^(\+254)/, "254");
-  // let token = req.token;
   let token = await generateToken();
   const date = new Date();
   const timestamp =
@@ -110,7 +109,7 @@ const generateToken = async (): Promise<string | undefined> => {
     const secret = process.env.CONSUMER_SECRET;
     const auth = Buffer.from(`${key}:${secret}`).toString("base64");
     const headers = {
-      Authorization: "Basic" + " " + auth,
+      Authorization: "Basic " + auth,
       "Content-Type": "application/json",
     };
     const response = await axios.get<accessToken>(
