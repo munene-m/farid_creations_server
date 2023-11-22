@@ -8,6 +8,7 @@ declare global {
       CLOUDNAME: string | undefined;
       CLOUDINARY_API_KEY: string | undefined;
       REDIS_URL: string | undefined;
+      SERVER_URL: string | undefined;
     }
   }
 }
