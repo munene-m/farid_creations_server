@@ -1,25 +1,27 @@
 import mongoose from "mongoose";
-const authSchema = new mongoose.Schema({
+const authSchema = new mongoose.Schema(
+  {
     username: {
-        type: String,
+      type: String,
     },
     email: {
-        type: String,
-        required: true,
-        unique: true
+      type: String,
+      required: [true, "Email is required"],
+      unique: true,
     },
     password: {
-        type:String,
-        required: true
+      type: String,
+      required: [true, "Password is required"],
     },
-    isAdmin:{
-        type: Boolean
+    isAdmin: {
+      type: Boolean,
     },
     phoneNumber: {
-        type: String,
-        unique: true
-    }
+      type: String,
+      unique: true,
+    },
+  },
+  { timestamps: true }
+);
 
-}, {timestamps: true})
-
-export default mongoose.model("dusstech-auth", authSchema)
+export default mongoose.model("farid-auth", authSchema);

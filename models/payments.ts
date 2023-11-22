@@ -11,4 +11,4 @@ const paymentSchema = new Schema({
     trim: true,
   },
 });
-export default mongoose.model("paymentSchema", paymentSchema);
+export default mongoose.model("farid-payments", paymentSchema);

@@ -1,14 +1,15 @@
-import mongoose from 'mongoose';
-const cartSchema = new mongoose.Schema({
+import mongoose from "mongoose";
+const cartSchema = new mongoose.Schema(
+  {
     customer: {
-        type: String
+      type: String,
     },
     customerId: {
-        type: mongoose.Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
     },
-    productId:{
-        type: mongoose.Schema.Types.ObjectId,
-        // required: true
+    productId: {
+      type: mongoose.Schema.Types.ObjectId,
+      // required: true
     },
     // vendorName:{
     //     type:String
@@ -16,22 +17,24 @@ const cartSchema = new mongoose.Schema({
     // vendorContact:{
     //     type: String
     // },
-    productName:{
-        type: String
+    productName: {
+      type: String,
     },
-    productDescription:{
-        type: String
+    productDescription: {
+      type: String,
     },
-    quantity:{
-        type: Number,
-        default: 1
+    quantity: {
+      type: Number,
+      default: 1,
     },
-    price:{
-        type: String,
+    price: {
+      type: String,
     },
-    productImage:{
-        type: String
+    productImage: {
+      type: String,
     },
-}, {timestamps: true})
+  },
+  { timestamps: true }
+);
 
-export default mongoose.model("dusstech-cart", cartSchema)
+export default mongoose.model("farid-cart", cartSchema);

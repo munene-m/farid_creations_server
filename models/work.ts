@@ -15,4 +15,4 @@ const workSchema = new mongoose.Schema({
   },
 });
 
-export default mongoose.model("dusstech-work", workSchema);
+export default mongoose.model("farid-work", workSchema);

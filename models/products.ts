@@ -26,4 +26,4 @@ const productSchema = new mongoose.Schema({
   },
 });
 
-export default mongoose.model("dusstech-products", productSchema);
+export default mongoose.model("farid-products", productSchema);
