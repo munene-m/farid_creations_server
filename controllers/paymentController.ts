@@ -49,8 +49,7 @@ export const makePayment = async (req: Request, res: Response) => {
 
   try {
     const response = await axios.post(url, payload, { headers });
-    console.log(response.data);
-    return response.data;
+    return res.status(200).json(response.data);
   } catch (error) {
     console.error(error);
     return;
@@ -72,10 +71,11 @@ export async function handleCallback(req: Request, res: Response) {
   }
   try {
     const paymentResponse = new payments({
-      paymentDetails: req.body.Body.stkCallback.CallbackMetadata,
+      paymentDetails: req.body.Body.stkCallback,
     });
 
     await paymentResponse.save();
+    console.log(paymentResponse.paymentDetails);
     res.status(200).json("success");
   } catch (err) {
     console.log(err);
