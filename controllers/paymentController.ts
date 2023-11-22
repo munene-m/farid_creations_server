@@ -53,29 +53,32 @@ export const makePayment = async (req: Request, res: Response) => {
     return response.data;
   } catch (error) {
     console.error(error);
+    return;
   }
 };
 
 export async function handleCallback(req: Request, res: Response) {
+  const callbackData = req.body;
+  // Check the result code
+  const result_code = callbackData.Body.stkCallback.ResultCode;
+  if (result_code !== 0) {
+    // If the result code is not 0, there was an error
+    const error_message = callbackData.Body.stkCallback.ResultDesc;
+    const response_data = {
+      ResultCode: result_code,
+      ResultDesc: error_message,
+    };
+    return res.json(response_data);
+  }
   try {
-    // Save the response data to your database (all responses, regardless of success)
     const paymentResponse = new payments({
       paymentDetails: req.body.Body.stkCallback.CallbackMetadata,
-      timestamp: new Date(),
     });
 
     await paymentResponse.save();
-
-    // Respond with the saved payment response data
-    res
-      .status(200)
-      .json({ message: "Callback response received", paymentResponse });
-  } catch (error) {
-    // Handle errors and send an appropriate response
-    logger.error("Error occured while handling callback: ", error);
-    res
-      .status(500)
-      .json({ message: "An error occurred while handling callback" });
+    res.status(200).json("success");
+  } catch (err) {
+    console.log(err);
   }
 }
 
