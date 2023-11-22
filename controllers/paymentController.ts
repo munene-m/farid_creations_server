@@ -23,6 +23,10 @@ export const makePayment = async (req: Request, res: Response) => {
     "base64"
   );
   const url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest";
+  const headers = {
+    Authorization: "Bearer " + token,
+    "Content-Type": "application/json",
+  };
   const payload = {
     BusinessShortCode: 174379,
     Password: password,
@@ -38,29 +42,12 @@ export const makePayment = async (req: Request, res: Response) => {
     TransactionDesc: "Test",
   };
 
-  await axios
-    .post(url, payload, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-    .then((response) => {
-      console.log(response.data);
-      res.status(200);
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(err.response?.status).json(err.message);
-    });
-  const payment = await payments.create({
-    amount,
-    phoneNumber: sanitizedPhoneNumber,
-  });
-  if (payment) {
-    return res.status(200).json({
-      _id: payment.id,
-      phone: payment.phoneNumber,
-    });
+  try {
+    const response = await axios.post(url, payload, { headers });
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    console.error(error);
   }
 };
 
