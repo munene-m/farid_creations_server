@@ -6,9 +6,8 @@ import {
   handleCallback,
   getCallbackResponse,
 } from "../controllers/paymentController";
-import generateToken from "../middleware/paymentMiddleware";
 
-router.route("/stk").post(generateToken, makePayment);
+router.route("/stk").post(makePayment);
 router.route("/callback").post(handleCallback);
 router.route("/getPayments").get(getCallbackResponse);
 
