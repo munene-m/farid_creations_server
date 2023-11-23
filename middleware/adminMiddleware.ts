@@ -27,15 +27,14 @@ export const adminProtect = async (
         req.admin = user;
         next();
       } else {
-        res.status(401).json({ error: "Unauthorized admin access" });
-        //   throw new Error("Unauthorized admin access");
+        return res.status(401).json({ error: "Unauthorized admin access" });
       }
     } catch (error) {
-      res.status(401).json({ error: "Invalid token" });
+      return res.status(401).json({ error: "Invalid token" });
       // throw new Error("Invalid token");
     }
   } else {
-    res.status(401).json({ error: "No authorization without token" });
+    return res.status(401).json({ error: "No authorization without token" });
     //   throw new Error();
   }
 };
