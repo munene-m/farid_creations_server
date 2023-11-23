@@ -1,22 +1,17 @@
 import mongoose from "mongoose";
+import { Schema } from "mongoose";
 const cartSchema = new mongoose.Schema(
   {
     customer: {
       type: String,
     },
     customerId: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
     },
     productId: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       // required: true
     },
-    // vendorName:{
-    //     type:String
-    // },
-    // vendorContact:{
-    //     type: String
-    // },
     productName: {
       type: String,
     },
