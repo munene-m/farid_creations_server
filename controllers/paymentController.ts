@@ -41,7 +41,7 @@ export const makePayment = async (req: Request, res: Response) => {
     PartyB: 174379,
     PhoneNumber: sanitizedPhoneNumber,
     // CallBackURL: "https://1623-41-90-177-141.in.ngrok.io/payment/stk",
-    CallBackURL: `${process.env.SERVER_URL}/api/payment/callback`,
+    CallBackURL: `${process.env.SERVER_URL}/api/v1/payment/callback`,
     AccountReference: "Test",
     TransactionDesc: "Test",
   };
