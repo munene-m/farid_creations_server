@@ -26,7 +26,7 @@ const options = {
 
 cloudinary.v2.config(options);
 
-export async function createWorkDone(req: Request, res: Response) {
+export async function addWorkDone(req: Request, res: Response) {
   const { title, description } = req.body;
   const image = req.file;
   const validationError = validateWorkFields(title, description, image);
@@ -37,8 +37,6 @@ export async function createWorkDone(req: Request, res: Response) {
   let result = undefined;
   if (image) {
     result = await cloudinary.v2.uploader.upload(image.path, {
-      width: 500,
-      height: 500,
       crop: "scale",
       quality: 50,
     });
@@ -81,8 +79,6 @@ export async function updateWorkDone(req: Request, res: Response) {
     if (req.file) {
       // If a new image is uploaded, update it in Cloudinary
       const result = await cloudinary.v2.uploader.upload(req.file.path, {
-        width: 500,
-        height: 500,
         crop: "scale",
         quality: 60,
       });
