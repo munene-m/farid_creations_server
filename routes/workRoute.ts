@@ -2,7 +2,7 @@ import express from "express";
 import multer from "multer";
 const upload = multer({ dest: "uploads/" });
 import {
-  createWorkDone,
+  addWorkDone,
   updateWorkDone,
   getItems,
   getItem,
@@ -11,7 +11,7 @@ import {
 import { adminProtect } from "../middleware/adminMiddleware";
 const router = express.Router();
 
-router.route("/add").post(adminProtect, upload.single("image"), createWorkDone);
+router.route("/add").post(adminProtect, upload.single("image"), addWorkDone);
 router
   .route("/update/:id")
   .put(adminProtect, upload.single("image"), updateWorkDone);
