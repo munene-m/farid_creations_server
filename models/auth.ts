@@ -18,7 +18,7 @@ const authSchema = new mongoose.Schema(
     },
     phoneNumber: {
       type: String,
-      unique: true,
+      // unique: true,
     },
   },
   { timestamps: true }
