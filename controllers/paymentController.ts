@@ -3,11 +3,6 @@ import logger from "../helpers/logging";
 import axios from "axios";
 import { Request, Response } from "express";
 
-interface accessToken {
-  access_token: string;
-  expires_in: string;
-}
-
 export const makePayment = async (req: Request, res: Response) => {
   const { amount, phoneNumber } = req.body;
   const sanitizedPhoneNumber = phoneNumber.replace(/^0|^(\+254)/, "254");
@@ -106,7 +101,7 @@ export async function getCallbackResponse(req: Request, res: Response) {
   }
 }
 
-const generateToken = async (): Promise<string | undefined> => {
+const generateToken = async () => {
   try {
     const key = process.env.CONSUMER_KEY;
     const secret = process.env.CONSUMER_SECRET;
@@ -115,7 +110,7 @@ const generateToken = async (): Promise<string | undefined> => {
       Authorization: "Basic " + auth,
       "Content-Type": "application/json",
     };
-    const response = await axios.get<accessToken>(
+    const response = await axios.get(
       "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials",
       {
         headers,
