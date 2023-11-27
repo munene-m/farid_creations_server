@@ -159,6 +159,31 @@ export async function loginAdmin(req: Request, res: Response) {
   }
 }
 
+export async function getUser(req: Request, res: Response) {
+  try {
+    const user = await Auth.findById(req.params.id).select("-password");
+    if (!user) {
+      return res.status(404).json({ error: "This user does not exist" });
+    } else {
+      res.status(200).json(user);
+    }
+  } catch (error) {
+    logger.error(`User does not exist`);
+    res.status(400).json({ message: "This user does not exist" });
+  }
+}
+
+export async function getUsers(req: Request, res: Response) {
+  try {
+    const users = await Auth.find().select("-password");
+
+    res.status(200).json(users);
+  } catch (error) {
+    logger.error("There are no users found");
+    res.status(400).json({ message: "An error occured" });
+  }
+}
+
 const generateToken = (id: ObjectId) => {
   return jwt.sign({ id }, process.env.JWT_SECRET || "", {
     expiresIn: "1d",
