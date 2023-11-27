@@ -12,6 +12,10 @@ export const makePayment = async (req: Request, res: Response) => {
   const { amount, phoneNumber } = req.body;
   const sanitizedPhoneNumber = phoneNumber.replace(/^0|^(\+254)/, "254");
   let token = await generateToken();
+  if (!token) {
+    logger.error("Token for stk is undefined");
+    return res.status(400).json({ error: "An error occurred" });
+  }
   const date = new Date();
   const timestamp =
     date.getFullYear() +
