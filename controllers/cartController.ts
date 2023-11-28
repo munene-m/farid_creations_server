@@ -91,7 +91,7 @@ export async function deleteItem(req: Request, res: Response) {
       return res.status(400).json("Item not found");
     }
     await Cart.findByIdAndDelete(req.params.id);
-    res.status(200).json({ message: "Item deleted" });
+    res.status(200).json({ message: "Item removed from cart" });
   } catch (error) {
     logger.error("An error occurred when deleting the cart item: ", error);
     res
