@@ -6,7 +6,8 @@ import { Request, Response } from "express";
 export const makePayment = async (req: Request, res: Response) => {
   const { amount, phoneNumber } = req.body;
   const sanitizedPhoneNumber = phoneNumber.replace(/^0|^(\+254)/, "254");
-  let token = await generateToken();
+  // let token = await generateToken();
+  let token = req.token;
   if (!token) {
     logger.error("Token for stk is undefined");
     return res.status(400).json({ error: "An error occurred" });
@@ -100,25 +101,3 @@ export async function getCallbackResponse(req: Request, res: Response) {
       .json({ message: "An error occurred when fetching your response" });
   }
 }
-
-const generateToken = async () => {
-  try {
-    const key = process.env.CONSUMER_KEY;
-    const secret = process.env.CONSUMER_SECRET;
-    const auth = Buffer.from(`${key}:${secret}`).toString("base64");
-    const headers = {
-      Authorization: "Basic " + auth,
-      "Content-Type": "application/json",
-    };
-    const response = await axios.get(
-      "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials",
-      {
-        headers,
-      }
-    );
-    return response.data.access_token;
-  } catch (error) {
-    console.log(error);
-    return;
-  }
-};
