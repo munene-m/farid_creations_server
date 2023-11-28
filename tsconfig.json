@@ -14,5 +14,5 @@
     "esModuleInterop": true,
     "lib": ["ES2016", "dom"]
   },
-  "include": ["index.ts", "*.d.ts", "types/*.d.ts"]
+  "include": ["index.ts", "types/*.d.ts"]
 }
