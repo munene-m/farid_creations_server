@@ -1,8 +1,13 @@
+import { ObjectId } from "mongoose";
+
 declare global {
   namespace Express {
     interface Request {
       admin: {};
-      token: string;
+      token: { token: string };
+      user: {
+        id: ObjectId;
+      };
     }
   }
 }
