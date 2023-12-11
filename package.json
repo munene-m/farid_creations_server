@@ -1,12 +1,12 @@
 {
-  "name": "dusstech-server",
+  "name": "farid-creations-server",
   "version": "1.0.0",
   "description": "",
   "main": "index.ts",
   "scripts": {
     "start": "nodemon index.ts",
     "prod": "node ./dist/index.js",
-    "test": ""
+    "build": "tsc"
   },
   "type": "commonjs",
   "keywords": [],
