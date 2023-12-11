@@ -1,0 +1,18 @@
+version: '3'
+services:
+  web:
+    build: .
+    image: millxn/farid-creations-server:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - MONGO_CONNECTION_URL=$MONGO_CONNECTION_URL
+      - JWT_SECRET=$JWT_SECRET
+      - BCRYPT_SALT=$BCRYPT_SALT
+      - CLOUDNAME=$CLOUDNAME
+      - CLOUDINARY_API_SECRET=$CLOUDINARY_API_SECRET
+      - CLOUDINARY_API_KEY=$CLOUDINARY_API_KEY
+      - SERVER_URL=$SERVER_URL
+      - MPESA_PAYBILL=$MPESA_PAYBILL
+      - MPESA_PASSKEY=$MPESA_PASSKEY
+      - CONSUMER_KEY=$CONSUMER_SECRET
