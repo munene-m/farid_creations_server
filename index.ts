@@ -44,6 +44,8 @@ app.use(
 
 // Start the server
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(
+    `Server running on port ${PORT}. Access the docs on http://localhost:${PORT}/api-docs`
+  );
   // logger.info(`Server running on port ${PORT}`)
 });
