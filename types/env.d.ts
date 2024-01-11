@@ -7,6 +7,7 @@ interface EnvVariables {
   CLOUDINARY_API_KEY: string | undefined;
   REDIS_URL: string | undefined;
   SERVER_URL: string | undefined;
+  ADMIN_EMAIL: string | undefined;
 }
 declare global {
   namespace NodeJS {
