@@ -8,7 +8,7 @@ import {
   getItem,
   deleteItem,
 } from "../controllers/workController";
-import { adminProtect } from "../middleware/adminMiddleware";
+import adminProtect from "../middleware/adminMiddleware";
 const router = express.Router();
 
 router.route("/add").post(adminProtect, upload.single("image"), addWorkDone);

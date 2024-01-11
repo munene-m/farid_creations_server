@@ -8,7 +8,8 @@ import {
   getProduct,
   deleteProduct,
 } from "../controllers/productController";
-import { adminProtect } from "../middleware/adminMiddleware";
+import adminProtect from "../middleware/adminMiddleware";
+import userProtect from "../middleware/authMiddleware";
 const router = express.Router();
 
 router
