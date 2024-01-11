@@ -10,7 +10,7 @@ import {
 
 router.route("/add").post(addCartItem);
 router.route("/update/:id").put(updateCart);
-router.route("/items/:id").get(getCartItems);
+router.route("/items/:customerId").get(getCartItems);
 router.route("/delete/:id").delete(deleteItem);
 router.route("/clear-cart/:customerId").delete(deleteCartItems);
 
