@@ -13,12 +13,9 @@ const authSchema = new mongoose.Schema(
       type: String,
       required: [true, "Password is required"],
     },
-    isAdmin: {
-      type: Boolean,
-    },
-    phoneNumber: {
+    role: {
       type: String,
-      // unique: true,
+      required: true,
     },
   },
   { timestamps: true }
