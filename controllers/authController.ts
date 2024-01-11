@@ -12,7 +12,7 @@ import { ObjectId } from "mongoose";
 
 const bcryptSalt = process.env.BCRYPT_SALT;
 
-export async function createUser(req: Request, res: Response) {
+export async function registerUser(req: Request, res: Response) {
   try {
     const { username, email, password } = req.body;
 
@@ -28,17 +28,21 @@ export async function createUser(req: Request, res: Response) {
 
     const hashedPassword = await bcrypt.hash(password, Number(bcryptSalt));
 
+    const isAdmin = email === process.env.ADMIN_EMAIL;
+
     const user = await Auth.create({
       username,
       email,
       password: hashedPassword,
+      role: isAdmin ? "admin" : "customer",
     });
     if (user) {
       res.status(201).json({
         _id: user.id,
         username: user.username,
         email: user.email,
-        token: generateToken(user.id),
+        role: user.role,
+        token: generateToken(user.id, user.role),
       });
       logger.info(`User - ${email} account created successfully`);
     }
@@ -66,10 +70,11 @@ export async function loginUser(req: Request, res: Response) {
     if (!passwordMatch) {
       return res.status(401).json({ message: "Invalid password" });
     }
-    const token = generateToken(user.id);
+    const token = generateToken(user.id, user.role);
     res.status(200).json({
       _id: user.id,
       email: user.email,
+      role: user.role,
       token,
     });
     logger.info(`Successful login by ${user.email}`);
@@ -78,90 +83,9 @@ export async function loginUser(req: Request, res: Response) {
   }
 }
 
-export async function registerAdmin(req: Request, res: Response) {
-  const { username, phoneNumber, email, password } = req.body;
-  const validationError = validateAdminRegistration(
-    phoneNumber,
-    email,
-    password
-  );
-  if (validationError) {
-    return res.status(400).json(validationError);
-  }
-  try {
-    const existingPhoneNumber = await Auth.findOne({ phoneNumber });
-    if (existingPhoneNumber) {
-      return res
-        .status(403)
-        .json({ message: "Forbidden. Phone number already exists" });
-    }
-    const userExists = await Auth.findOne({ email });
-    if (userExists) {
-      return res.status(403).json({ message: "Forbiden. User already exists" });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, Number(bcryptSalt));
-
-    const admin = new Auth({
-      username: username,
-      email: email,
-      password: hashedPassword,
-      phoneNumber: phoneNumber,
-      isAdmin: true,
-    });
-    await admin.save();
-    logger.info(`Admin account created - ${admin.email}`);
-
-    res.status(201).json({
-      _id: admin.id,
-      username: admin.username,
-      email: admin.email,
-      phoneNumber: admin.phoneNumber,
-      isAdmin: admin.isAdmin,
-      token: generateToken(admin.id),
-    });
-  } catch (error) {
-    logger.error("Error registering admin:", error);
-    res
-      .status(400)
-      .json({ message: "An error occurred while registering admin" });
-  }
-}
-
-export async function loginAdmin(req: Request, res: Response) {
-  try {
-    const { email, password } = req.body;
-
-    const validationError = validateLoginFields(email, password);
-    if (validationError) {
-      return res.status(400).json({ error: validationError });
-    }
-    const user = await Auth.findOne({ email });
-
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-    const passwordMatch = await bcrypt.compare(password, user.password);
-
-    if (!passwordMatch) {
-      return res.status(401).json({ message: "Invalid password" });
-    }
-    const token = generateToken(user.id);
-    res.status(200).json({
-      _id: user.id,
-      email: user.email,
-      isAdmin: user.isAdmin,
-      token,
-    });
-    logger.info(`Successful admin login by ${user.email}`);
-  } catch (error) {
-    res.status(400).json({ message: "An error occurred." });
-  }
-}
-
 export async function getUser(req: Request, res: Response) {
   try {
-    const user = await Auth.findById(req.params.id).select("-password");
+    const user = await Auth.findById(req.params.customerId).select("-password");
     if (!user) {
       return res.status(404).json({ error: "This user does not exist" });
     } else {
@@ -184,8 +108,8 @@ export async function getUsers(req: Request, res: Response) {
   }
 }
 
-const generateToken = (id: ObjectId) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET || "", {
+const generateToken = (id: ObjectId, role: string) => {
+  return jwt.sign({ id, role }, process.env.JWT_SECRET || "", {
     expiresIn: "1d",
   });
 };
