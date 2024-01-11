@@ -74,7 +74,7 @@ export async function updateCart(req: Request, res: Response) {
 
 export async function getCartItems(req: Request, res: Response) {
   try {
-    const customerId = req.params.id;
+    const customerId = req.params.customerId;
     const cartItems = await Cart.find({ customerId: customerId });
 
     res.status(200).json(cartItems);
