@@ -4,12 +4,21 @@ import dotenv from "dotenv";
 import helmet from "helmet";
 import cors from "cors";
 import { connectDB } from "./config/db";
-import logger from "./helpers/logging";
+import swaggerUi from "swagger-ui-express";
+import swaggerDocument from "./utils/swagger.json";
 import authRoute from "./routes/authRoute";
 import productRoute from "./routes/productRoute";
 import workRoute from "./routes/workRoute";
 import cartRoute from "./routes/cartRoute";
 import paymentRoute from "./routes/paymentRoute";
+
+const options = {
+  swaggerOptions: {
+    tryItOutEnabled: false,
+    supportedSubmitMethods: [""],
+    overview: true,
+  },
+};
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -27,6 +36,11 @@ app.use("/api/v1/products", productRoute);
 app.use("/api/v1/work", workRoute);
 app.use("/api/v1/cart", cartRoute);
 app.use("/api/v1/payment", paymentRoute);
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerDocument, options)
+);
 
 // Start the server
 app.listen(PORT, () => {
