@@ -1,98 +1,48 @@
-import payments from "../models/payments";
-import logger from "../helpers/logging";
-import axios from "axios";
 import { Request, Response } from "express";
-
-export const makePayment = async (req: Request, res: Response) => {
-  const { amount, phoneNumber } = req.body;
-  const sanitizedPhoneNumber = phoneNumber.replace(/^0|^(\+254)/, "254");
-  // let token = await generateToken();
-  let token = req.token;
-  if (!token) {
-    logger.error("Token for stk is undefined");
-    return res.status(400).json({ error: "An error occurred" });
-  }
-  const date = new Date();
-  const timestamp =
-    date.getFullYear() +
-    ("0" + (date.getMonth() + 1)).slice(-2) +
-    ("0" + date.getDate()).slice(-2) +
-    ("0" + date.getHours()).slice(-2) +
-    ("0" + date.getMinutes()).slice(-2) +
-    ("0" + date.getSeconds()).slice(-2);
-  const shortcode = process.env.MPESA_PAYBILL;
-  const passkey = process.env.MPESA_PASSKEY;
-
-  const password = Buffer.from(`${shortcode}${passkey}${timestamp}`).toString(
-    "base64"
-  );
-  const url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest";
-  const headers = {
-    Authorization: "Bearer " + token,
-    "Content-Type": "application/json",
-  };
-  const payload = {
-    BusinessShortCode: 174379,
-    Password: password,
-    Timestamp: timestamp,
-    TransactionType: "CustomerPayBillOnline",
-    Amount: amount,
-    PartyA: sanitizedPhoneNumber,
-    PartyB: 174379,
-    PhoneNumber: sanitizedPhoneNumber,
-    CallBackURL: `${process.env.SERVER_URL}/api/v1/payment/callback`,
-    AccountReference: "Test",
-    TransactionDesc: "Test",
-  };
-
-  try {
-    const response = await axios.post(url, payload, { headers });
-    return res.status(200).json(response.data);
-  } catch (error) {
-    console.error(error);
-    return;
-  }
-};
+import Payment from "../models/payments";
+import logger from "../helpers/logging";
 
 export async function handleCallback(req: Request, res: Response) {
-  const callbackData = req.body;
-  // Check the result code
-  const result_code = callbackData.Body.stkCallback.ResultCode;
-  if (result_code !== 0) {
-    // If the result code is not 0, there was an error
-    const error_message = callbackData.Body.stkCallback.ResultDesc;
-    const response_data = {
-      ResultCode: result_code,
-      ResultDesc: error_message,
-    };
-    return res.json(response_data);
-  }
   try {
-    const paymentResponse = new payments({
-      paymentDetails: req.body.Body.stkCallback,
+    // Save the response data to your database (all responses, regardless of success)
+    const paymentResponse = new Payment({
+      data: req.body,
+      timestamp: new Date(),
     });
 
     await paymentResponse.save();
-    // console.log(paymentResponse.paymentDetails);
-    res.status(200).json("success");
-  } catch (err) {
-    console.log(err);
+
+    logger.info(`Payment response sent - ${paymentResponse.data.Message}`);
+
+    // Respond with the saved payment response data
+    res
+      .status(200)
+      .json({ message: "Callback response received", paymentResponse });
+  } catch (error) {
+    // Handle errors and send an appropriate response
+    logger.error("Error occured while handling callback: ", error);
+    res
+      .status(400)
+      .json({ message: "An error occurred while handling callback" });
   }
 }
 
 export async function getCallbackResponse(req: Request, res: Response) {
   try {
-    // const { transactionRef } = req.body;
+    const { transactionRef } = req.body;
 
-    const response = await payments.find();
+    const response = await Payment.findOne({
+      "data.transaction_reference": transactionRef,
+    });
 
     if (!response) {
-      // logger.error(`No record found for transactionRef: ${transactionRef}`);
-      return res.status(404).json({ message: "No records found" });
+      logger.error(`No record found for transactionRef: ${transactionRef}`);
+      return res
+        .status(404)
+        .json({ message: "No record found for transactionRef" });
     }
-    // const success = response.ccess;
-    // res.status(200).json({ success });
-    res.status(200).json(response);
+    const success = response.data.Success;
+    res.status(200).json({ success });
     //   }
   } catch (error) {
     logger.error(error);
@@ -101,3 +51,42 @@ export async function getCallbackResponse(req: Request, res: Response) {
       .json({ message: "An error occurred when fetching your response" });
   }
 }
+
+// export async function getPayoutResponse(req: Request, res: Response) {
+//   try {
+//     const { payoutRef, transactionType } = req.body;
+
+//     const response = await Payment.findOne({
+//       "data.payout_reference": payoutRef,
+//     });
+//     if (!response) {
+//       logger.error(`No record found for payoutRef: ${payoutRef}`);
+//       return res.status(404).json({ message: "No record found for payoutRef" });
+//     }
+//     response.transactionType = transactionType;
+//     await response.save();
+
+//     const success = response.data.success;
+//     res.status(200).json({ success, response: response.data });
+//   } catch (error) {
+//     logger.error(error);
+//     res
+//       .status(400)
+//       .json({ message: "An error occurred when fetching your response" });
+//   }
+// }
+
+// export async function getPayouts(req: Request, res: Response) {
+//   const vendorId = req.params.id;
+//   if (!vendorId) {
+//     return res.status(400).json({ error: "Vendor id is required" });
+//   }
+//   try {
+//     const payouts = await Payment.find({ vendorId: vendorId });
+//     res.status(200).json(payouts);
+//   } catch (error) {
+//     return res.status(400).json({ error: "An error occured" });
+//   }
+// }
+
+//

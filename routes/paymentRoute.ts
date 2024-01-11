@@ -1,14 +1,16 @@
 import express from "express";
 const router = express.Router();
-// const { protect, mpesaProtect } = require('../middleware/authMiddleware')
+
 import {
-  makePayment,
   handleCallback,
   getCallbackResponse,
+  // getPayoutResponse,
+  // getPayouts,
 } from "../controllers/paymentController";
-import { generateToken } from "../middleware/paymentMiddleware";
-router.route("/stk").post(generateToken, makePayment);
+
 router.route("/callback").post(handleCallback);
-router.route("/getPayments").get(getCallbackResponse);
+router.route("/response").post(getCallbackResponse);
+// router.route("/payout-response").post(getPayoutResponse);
+// router.route("/:id").get(getPayouts);
 
 export default router;
