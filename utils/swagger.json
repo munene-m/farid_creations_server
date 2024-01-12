@@ -309,6 +309,18 @@
                     }
                 }
             }
+        },
+        "/api/v1/cart/add": {
+            "post": {
+                "tags": [
+                    "Add item to cart"
+                ]
+            },
+            "responses": {
+                "200": {
+                    "description": "Item added to cart successfully"
+                }
+            }
         }
     },
     "tags": []
