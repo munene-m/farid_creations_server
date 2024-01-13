@@ -114,3 +114,20 @@ const generateToken = (id: ObjectId, role: string) => {
     expiresIn: "1d",
   });
 };
+
+export async function deleteUser(req: Request, res: Response) {
+  try {
+    const user = await Auth.findById(req.params.customerId);
+    if (!user) {
+      return res
+        .status(404)
+        .json({ error: "The user you tried to delete no longer exists." });
+    } else {
+      await Auth.findByIdAndDelete(req.params.customerId);
+      return res.status(200).json({ message: "User deleted successfully" });
+    }
+  } catch (error) {
+    logger.error("An error occured deleting user.", error);
+    res.status(400).json({ message: "An error occured" });
+  }
+}
