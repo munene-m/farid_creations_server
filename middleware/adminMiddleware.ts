@@ -25,7 +25,7 @@ const adminProtect = async (
     const user = await Auth.findById(decoded.id).select("-password");
 
     if (!user) {
-      return res.status(401).json({ error: "Unauthorized attempt" });
+      return res.status(401).json({ message: "Unauthorized attempt" });
     }
 
     req.user = { id: user._id, ...user };
@@ -34,10 +34,10 @@ const adminProtect = async (
     if (user.role === "admin") {
       next(); // Admin has unrestricted access
     } else {
-      return res.status(403).json({ error: "Forbidden access" });
+      return res.status(403).json({ message: "Forbidden access" });
     }
   } else {
-    return res.status(401).json({ error: "Unauthorized attempt" });
+    return res.status(401).json({ message: "Unauthorized attempt" });
   }
 };
 
