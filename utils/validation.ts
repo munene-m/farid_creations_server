@@ -91,7 +91,8 @@ export function validateProductFields(
   description: string,
   price: string,
   type: string,
-  image: Express.Multer.File | undefined
+  image: Express.Multer.File | undefined,
+  deliveryFee: string
 ) {
   if (!name || !price || !description || !image || !type) {
     if (!name) {
@@ -104,6 +105,8 @@ export function validateProductFields(
       return { message: "Image is required" };
     } else if (!type) {
       return { message: "Product type is required" };
+    } else if (!deliveryFee) {
+      return { message: "Delivery fee is required" };
     } else {
       return { message: "Please enter all required fields" };
     }
