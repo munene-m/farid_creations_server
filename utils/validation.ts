@@ -44,48 +44,6 @@ export function validateLoginFields(email: string, password: string) {
   return null;
 }
 
-export function validateAdminRegistration(
-  phoneNumber: string,
-  email: string,
-  password: string
-) {
-  if (!phoneNumber || !email || !password) {
-    switch (true) {
-      case !phoneNumber:
-        return { message: "Phone number is required" };
-      case !email:
-        return { message: "Email is required" };
-      case !password:
-        return { message: "Password is required" };
-      default:
-        return { message: "Please enter all required fields" };
-    }
-  }
-
-  const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
-  if (!email.match(emailRegex)) {
-    return { message: "Invalid email address" };
-  }
-  const phoneRegex = /^(?:\+254|0)[17]\d{8}$/; // Matches +254 or 0, followed by 1 or 7, and then 8 digits
-
-  if (!phoneNumber.match(phoneRegex)) {
-    return { message: "Invalid phone number format" };
-  }
-  if (password.length < 8) {
-    return { message: "Password must be at least 8 characters long" };
-  }
-
-  if (!/[A-Z]/.test(password)) {
-    return { message: "Password must contain at least one uppercase letter" };
-  }
-
-  if (!/[!@#$%^&*]/.test(password)) {
-    return { message: "Password must contain at least one special character" };
-  }
-
-  return null; // No validation message
-}
-
 export function validateProductFields(
   name: string,
   description: string,
