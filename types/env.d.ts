@@ -8,6 +8,9 @@ interface EnvVariables {
   REDIS_URL: string | undefined;
   SERVER_URL: string | undefined;
   ADMIN_EMAIL: string | undefined;
+  EMAIL_FROM: string | undefined;
+  EMAIL_PASSWORD: string | undefined;
+  EMAIL_HOST: string | undefined;
 }
 declare global {
   namespace NodeJS {
