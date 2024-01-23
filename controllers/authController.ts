@@ -76,13 +76,12 @@ export async function loginUser(req: Request, res: Response) {
     if (!passwordMatch) {
       return res.status(401).json({ message: "Invalid password" });
     }
-    const token = generateToken(user.id, user.role);
     res.status(200).json({
       _id: user.id,
       username: user.username,
       email: user.email,
       role: user.role,
-      token,
+      token: generateToken(user.id, user.role),
     });
     logger.info(`Successful login by ${user.email}`);
   } catch (error) {
