@@ -19,12 +19,12 @@ export async function addCartItem(req: Request, res: Response) {
       return res.status(404).json({ error: "Product does not exist" });
     }
     if (!customer) {
-      return res.status(404).json({ error: "User does not exist" });
+      return res.status(404).json({ error: "Customer does not exist" });
     }
 
     const existingCartItem = await Cart.findOne({
-      customerId: customerId,
-      productId: productId, // Here we are checking for the same productId in the cart
+      customerId,
+      productId, // Here we are checking for the same productId in the cart
     });
 
     if (existingCartItem) {
