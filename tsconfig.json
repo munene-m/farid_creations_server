@@ -2,7 +2,7 @@
   "compilerOptions": {
     "module": "CommonJS",
     // "moduleResolution": "NodeNext",
-    "target": "ES2016",
+    "target": "ES2018",
     "experimentalDecorators": true /* Enable experimental support for legacy experimental decorators. */,
     "emitDecoratorMetadata": true,
     "sourceMap": true,
@@ -13,7 +13,7 @@
     "typeRoots": ["types", "./node_modules/@types"],
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "lib": ["ES2016", "dom"]
+    "lib": ["ES2018", "dom"]
   },
   "include": ["index.ts", "types/*.d.ts"]
 }
