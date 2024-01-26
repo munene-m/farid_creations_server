@@ -45,8 +45,8 @@ export async function createProduct(req: Request, res: Response) {
   }
 
   const result = await cloudinary.v2.uploader.upload(image.path, {
-    width: 500,
-    height: 500,
+    // width: 500,
+    // height: 500,
     crop: "scale",
     quality: 50,
   });
@@ -96,8 +96,8 @@ export async function updateProduct(req: Request, res: Response) {
     if (req.file) {
       // If a new image is uploaded, update it in Cloudinary
       const result = await cloudinary.v2.uploader.upload(req.file.path, {
-        width: 500,
-        height: 500,
+        // width: 500,
+        // height: 500,
         crop: "scale",
         quality: 60,
       });
