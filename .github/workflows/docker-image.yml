@@ -15,7 +15,7 @@ jobs:
       
     - name: Log in to DigitalOcean Container Registry
       run: |
-        docker login -u ${{ secrets.DIGITALOCEAN_REGISTRY_EMAIL }} -p ${{ secrets.DIGITALOCEAN_REGISTRY_TOKEN }} registry.digitalocean.com
+        docker login -u ${{ secrets.DIGITALOCEAN_REGISTRY_EMAIL }} -p-stdin ${{ secrets.DIGITALOCEAN_REGISTRY_TOKEN }} registry.digitalocean.com
       
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
