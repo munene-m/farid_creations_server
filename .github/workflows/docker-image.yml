@@ -22,7 +22,7 @@ jobs:
       run: |
         docker buildx create --use
         docker buildx inspect --bootstrap
-        docker buildx build --file Dockerfile --tag registry.digitalocean.com/munene/millxn/farid-creations-server:$(date +%s) --push .
+        docker buildx build --file Dockerfile --tag registry.digitalocean.com/munene/millxn/farid-creations-server:$(date +%s) .
       env:
         DIGITALOCEAN_REGISTRY_TOKEN: ${{ secrets.DIGITALOCEAN_REGISTRY_TOKEN }}
 
