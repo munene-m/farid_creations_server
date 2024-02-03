@@ -21,7 +21,6 @@ const productSchema = new mongoose.Schema({
   },
   deliveryFee: {
     type: String,
-    required: true,
   },
   category: {
     type: String,

@@ -34,8 +34,7 @@ export async function createProduct(req: Request, res: Response) {
     description,
     price,
     type,
-    image,
-    deliveryFee
+    image
   );
   if (validationError) {
     return res.status(400).json(validationError);
