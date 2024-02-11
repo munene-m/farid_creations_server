@@ -28,6 +28,9 @@ FROM base
 # Copy built application
 COPY --from=build /app /app
 
+# # Build TS
+RUN npm run build
+
 # Start the server by default
 EXPOSE 3000
 CMD [ "npm", "run", "prod" ]
