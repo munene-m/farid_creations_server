@@ -17,7 +17,9 @@ const authSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    passResetToken: String,
+    passResetToken: {
+      type: String,
+    },
   },
   { timestamps: true }
 );
