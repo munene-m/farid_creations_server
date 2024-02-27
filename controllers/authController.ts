@@ -10,13 +10,16 @@ import { ObjectId } from "mongoose";
 const bcryptSalt = process.env.BCRYPT_SALT;
 
 const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: 465,
+  service: "gmail",
   auth: {
     user: process.env.EMAIL_FROM,
     pass: process.env.EMAIL_PASSWORD,
   },
 });
+
+interface DecodedToken extends JwtPayload {
+  userId: string; // Adjust the structure as needed based on your token
+}
 
 export async function registerUser(req: Request, res: Response) {
   try {
@@ -138,7 +141,7 @@ export const requestPasswordReset = async (req: Request, res: Response) => {
     html: `
       <p>Hi ${user.username},</p>
       <p>We received a request to change your password. You can click the button below to proceed with creating a new password.</p>
-      <a href="${process.env.CLIENT_URL}/reset-password/${resetToken}" style="display: inline-block; padding: 10px 20px; background-color: #007BFF; color: #fff; text-decoration: none; border-radius: 5px; margin-top: 10px;">Reset Password</a>
+      <a href="${process.env.CLIENT_URL}/reset-password/${resetToken}/" style="display: inline-block; padding: 10px 20px; background-color: #007BFF; color: #fff; text-decoration: none; border-radius: 5px; margin-top: 10px;">Reset Password</a>
       <p style="margin-top: 10px">If you ignore this email, your password will not be changed. This link expires in 1 hour.</p>      
     `,
   };
@@ -149,7 +152,7 @@ export const requestPasswordReset = async (req: Request, res: Response) => {
     }
 
     console.log("Email sent: " + info.response);
-    res.status(200).json({ message: "Password reset email sent" });
+    res.status(200).json({ message: "Password reset email sent." });
   });
 };
 
@@ -164,21 +167,21 @@ export const changeUserPassword = async (req: Request, res: Response) => {
     const decodedToken = jwt.verify(
       token,
       process.env.JWT_SECRET || ""
-    ) as JwtPayload;
+    ) as DecodedToken;
     const userId = decodedToken.userId;
 
     Auth.findOne({ passResetToken: token })
       .then(async (user) => {
         if (!user) {
-          return res.status(400).json({ error: "The token is invalid" });
+          return res.status(400).json({ message: "The token is invalid" });
         }
 
-        // Verify that the token's user ID matches the user's ID
         if (user._id.toString() !== userId) {
-          return res.status(401).json({ error: "Invalid token for this user" });
+          return res
+            .status(401)
+            .json({ message: "Invalid token for this user" });
         }
 
-        // Hash the new password
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // Update the user's password
@@ -187,15 +190,16 @@ export const changeUserPassword = async (req: Request, res: Response) => {
           { password: hashedPassword },
           { new: true }
         );
+        // console.log(user);
         user.passResetToken = undefined;
         await user.save();
         res.status(200).json({ message: "Password changed successfully." });
       })
       .catch((err) => {
-        res.status(400).json({ error: "Failed to change password", err });
+        res.status(400).json({ message: "Failed to change password", err });
       });
   } catch (err) {
-    res.status(400).json({ error: "Failed to change password for user" });
+    res.status(400).json({ message: "Failed to change password for user" });
   }
 };
 
