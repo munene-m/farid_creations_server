@@ -1,11 +1,18 @@
-import Auth from "../models/auth";
+import {
+  userModel,
+  getAllUsers,
+  getUserById,
+  getUserByEmail,
+  deleteUserByID,
+  createUser,
+} from "../models/auth";
 import nodemailer from "nodemailer";
 import { Request, Response } from "express";
 import logger from "../helpers/logging";
 import { validateUserFields, validateLoginFields } from "../utils/validation";
 import bcrypt from "bcrypt";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { ObjectId } from "mongoose";
+import mongoose, { ObjectId } from "mongoose";
 
 const bcryptSalt = process.env.BCRYPT_SALT;
 
@@ -30,7 +37,7 @@ export async function registerUser(req: Request, res: Response) {
       return res.status(400).json(validationError);
     }
 
-    const userExists = await Auth.findOne({ email });
+    const userExists = await getUserByEmail(email);
     if (userExists) {
       return res.status(403).json({ message: "Forbiden. User already exists" });
     }
@@ -39,22 +46,19 @@ export async function registerUser(req: Request, res: Response) {
 
     const isAdmin = email === process.env.ADMIN_EMAIL;
 
-    const user = await Auth.create({
+    const user = createUser({
       username,
       email,
       password: hashedPassword,
       role: isAdmin ? "admin" : "customer",
     });
-    if (user) {
-      res.status(201).json({
-        _id: user.id,
-        username: user.username,
-        email: user.email,
-        role: user.role,
-        token: generateToken(user.id, user.role),
-      });
-      logger.info(`User - ${email} account created successfully`);
-    }
+    res.status(201).json({
+      _id: (await user)._id,
+      username: (await user).username,
+      email: (await user).email,
+      role: (await user).role,
+      token: generateToken((await user)._id, (await user).role),
+    });
   } catch (error) {
     logger.error("Error occurred when creating account: ", error);
     return res.status(400).json(error);
@@ -69,7 +73,7 @@ export async function loginUser(req: Request, res: Response) {
     if (validationError) {
       return res.status(400).json({ error: validationError });
     }
-    const user = await Auth.findOne({ email });
+    const user = await getUserByEmail(email);
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -94,7 +98,7 @@ export async function loginUser(req: Request, res: Response) {
 
 export async function getUser(req: Request, res: Response) {
   try {
-    const user = await Auth.findById(req.params.customerId).select("-password");
+    const user = await getUserById(req.params.id);
     if (!user) {
       return res.status(404).json({ error: "This user does not exist" });
     } else {
@@ -108,7 +112,7 @@ export async function getUser(req: Request, res: Response) {
 
 export async function getUsers(req: Request, res: Response) {
   try {
-    const users = await Auth.find().select("-password");
+    const users = await getAllUsers();
 
     res.status(200).json(users);
   } catch (error) {
@@ -122,7 +126,7 @@ export const requestPasswordReset = async (req: Request, res: Response) => {
   if (!email) {
     return res.status(400).json({ error: "Please provide an email address" });
   }
-  const user = await Auth.findOne({ email });
+  const user = await getUserByEmail(email);
 
   if (!user) {
     return res.status(404).json({ error: "Email does not exist" });
@@ -170,7 +174,8 @@ export const changeUserPassword = async (req: Request, res: Response) => {
     ) as DecodedToken;
     const userId = decodedToken.userId;
 
-    Auth.findOne({ passResetToken: token })
+    userModel
+      .findOne({ passResetToken: token })
       .then(async (user) => {
         if (!user) {
           return res.status(400).json({ message: "The token is invalid" });
@@ -185,7 +190,7 @@ export const changeUserPassword = async (req: Request, res: Response) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // Update the user's password
-        await Auth.findByIdAndUpdate(
+        await userModel.findByIdAndUpdate(
           user._id,
           { password: hashedPassword },
           { new: true }
@@ -205,22 +210,16 @@ export const changeUserPassword = async (req: Request, res: Response) => {
 
 export async function deleteUser(req: Request, res: Response) {
   try {
-    const user = await Auth.findById(req.params.customerId);
-    if (!user) {
-      return res
-        .status(404)
-        .json({ error: "The user you tried to delete no longer exists." });
-    } else {
-      await Auth.findByIdAndDelete(req.params.customerId);
-      return res.status(200).json({ message: "User deleted successfully" });
-    }
+    const user = await deleteUserByID(req.params.customerId);
+
+    return res.status(200).json({ message: "User deleted successfully" });
   } catch (error) {
     logger.error("An error occured deleting user.", error);
-    res.status(400).json({ message: "An error occured" });
+    res.status(400).json(error);
   }
 }
 
-const generateToken = (id: ObjectId, role: string) => {
+const generateToken = (id: mongoose.Types.ObjectId, role: string) => {
   return jwt.sign({ id, role }, process.env.JWT_SECRET || "", {
     expiresIn: "1d",
   });

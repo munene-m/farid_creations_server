@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
-import Auth from "../models/auth";
 import jwt, { JwtPayload } from "jsonwebtoken";
+import { getUserById } from "../models/auth";
 interface DecodedToken extends JwtPayload {
-  userId: string; // Adjust the structure as needed based on your token
+  id: string; // Adjust the structure as needed based on your token
 }
 const adminProtect = async (
   req: Request,
@@ -22,7 +22,7 @@ const adminProtect = async (
       process.env.JWT_SECRET || ""
     ) as DecodedToken;
 
-    const user = await Auth.findById(decoded.id).select("-password");
+    const user = await getUserById(decoded.id).select("-password");
 
     if (!user) {
       return res.status(401).json({ message: "Unauthorized attempt" });

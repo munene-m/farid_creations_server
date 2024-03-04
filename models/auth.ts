@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { ObjectId } from "mongoose";
 const authSchema = new mongoose.Schema(
   {
     username: {
@@ -24,4 +24,12 @@ const authSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.model("farid-auth", authSchema);
+export const userModel = mongoose.model("farid-auth", authSchema);
+
+export const getAllUsers = () => userModel.find();
+export const getUserById = (id: string) => userModel.findById(id);
+export const createUser = (values: Record<string, any>) =>
+  new userModel(values).save().then((user) => user.toObject());
+export const getUserByEmail = (email: string) => userModel.findOne({ email });
+export const deleteUserByID = (id: string) =>
+  userModel.findOneAndDelete({ _id: id });

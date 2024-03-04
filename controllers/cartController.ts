@@ -1,7 +1,15 @@
 import { Request, Response } from "express";
-import Cart from "../models/cart";
+import {
+  cartModel,
+  deleteAllItems,
+  getCart,
+  deleteItemById,
+  findExisting,
+  updateCartById,
+  getCartItemById,
+} from "../models/cart";
 import Products from "../models/products";
-import Auth from "../models/auth";
+import { getUserById } from "../models/auth";
 import logger from "../helpers/logging";
 import { validateCartFields } from "../utils/validation";
 
@@ -13,7 +21,7 @@ export async function addCartItem(req: Request, res: Response) {
   }
   try {
     const product = await Products.findById(productId);
-    const customer = await Auth.findById(customerId);
+    const customer = await getUserById(customerId);
 
     if (!product) {
       return res.status(404).json({ error: "Product does not exist" });
@@ -22,10 +30,7 @@ export async function addCartItem(req: Request, res: Response) {
       return res.status(404).json({ error: "Customer does not exist" });
     }
 
-    const existingCartItem = await Cart.findOne({
-      customerId,
-      productId, // Here we are checking for the same productId in the cart
-    });
+    const existingCartItem = await findExisting(customerId, productId);
 
     if (existingCartItem) {
       return res
@@ -33,7 +38,7 @@ export async function addCartItem(req: Request, res: Response) {
         .json({ error: "This item is already in the cart" });
     }
 
-    const item = new Cart({
+    const item = new cartModel({
       customerId: customerId,
       productId: productId,
       productName: product.name,
@@ -56,15 +61,11 @@ export async function addCartItem(req: Request, res: Response) {
 
 export async function updateCart(req: Request, res: Response) {
   try {
-    const cartItem = await Cart.findById(req.params.id);
+    const cartItem = await getCartItemById(req.params.id);
     if (!cartItem) {
       return res.status(400).json({ error: "Cart item does not exist" });
     }
-    const updatedProduct = await Cart.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
+    const updatedProduct = await updateCartById(req.params.id, req.body);
     res.status(200).json(updatedProduct);
   } catch (error) {
     logger.error("An error occured when updating cart", error);
@@ -74,8 +75,7 @@ export async function updateCart(req: Request, res: Response) {
 
 export async function getCartItems(req: Request, res: Response) {
   try {
-    const customerId = req.params.customerId;
-    const cartItems = await Cart.find({ customerId: customerId });
+    const cartItems = await getCart(req.params.customerId);
 
     res.status(200).json(cartItems);
   } catch (error) {
@@ -86,11 +86,7 @@ export async function getCartItems(req: Request, res: Response) {
 
 export async function deleteItem(req: Request, res: Response) {
   try {
-    const item = await Cart.findById(req.params.id);
-    if (!item) {
-      return res.status(400).json("Item not found");
-    }
-    await Cart.findByIdAndDelete(req.params.id);
+    await deleteItemById(req.params.id);
     res.status(200).json({ message: "Item removed from cart" });
   } catch (error) {
     logger.error("An error occurred when deleting the cart item: ", error);
@@ -105,7 +101,7 @@ export async function deleteCartItems(req: Request, res: Response) {
     const customerId = req.params.customerId;
 
     // Find and delete all cart items for the specified customerId
-    const result = await Cart.deleteMany({ customerId: customerId });
+    const result = await deleteAllItems(customerId);
 
     if (result.deletedCount === 0) {
       res.status(400).json({ message: "No cart items found for the customer" });

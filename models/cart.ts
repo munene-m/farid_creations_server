@@ -32,4 +32,18 @@ const cartSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.model("farid-cart", cartSchema);
+export const cartModel = mongoose.model("farid-cart", cartSchema);
+
+export const getCart = (customerId: string) => cartModel.find({ customerId });
+export const getCartItemById = (id: string) => cartModel.findById(id);
+export const deleteAllItems = (customerId: string) =>
+  cartModel.deleteMany({ customerId });
+export const deleteItemById = (id: string) =>
+  cartModel.findOneAndDelete({ _id: id });
+export const findExisting = (customerId: string, productId: string) =>
+  cartModel.findOne({
+    customerId,
+    productId,
+  });
+export const updateCartById = (id: string, values: Record<string, any>) =>
+  cartModel.findByIdAndUpdate(id, values, { new: true });

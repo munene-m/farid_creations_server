@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import jwt, { TokenExpiredError, JwtPayload } from "jsonwebtoken";
-import Auth from "../models/auth";
+import { getUserById } from "../models/auth";
 import rateLimit from "express-rate-limit";
 
 interface DecodedToken extends JwtPayload {
-  customerId: string; // Adjust the structure as needed based on your token
+  id: string; // Adjust the structure as needed based on your token
 }
 
 // Define a rate limit middleware for authenticated users
@@ -36,8 +36,9 @@ const userProtect = async (req: Request, res: Response, next: NextFunction) => {
         token,
         process.env.JWT_SECRET || ""
       ) as DecodedToken;
+      console.log(decoded);
 
-      const user = await Auth.findById(decoded.id).select("-password");
+      const user = await getUserById(decoded.id).select("-password");
 
       if (!user) {
         return res.status(401).json({ error: "Unauthorized attempt" });
