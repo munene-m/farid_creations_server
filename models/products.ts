@@ -31,4 +31,8 @@ const productSchema = new mongoose.Schema({
   },
 });
 
-export default mongoose.model("farid-products", productSchema);
+export const productModel = mongoose.model("farid-products", productSchema);
+export const getProductById = (id: string) => productModel.findById(id);
+export const getAllProducts = () => productModel.find();
+export const deleteProductById = (id: string) =>
+  productModel.findOneAndDelete({ _id: id });

@@ -1,5 +1,10 @@
 import { Request, Response } from "express";
-import Products from "../models/products";
+import {
+  getProductById,
+  getAllProducts,
+  productModel,
+  deleteProductById,
+} from "../models/products";
 import multer from "multer";
 import dotenv from "dotenv";
 import logger from "../helpers/logging";
@@ -50,7 +55,7 @@ export async function createProduct(req: Request, res: Response) {
     quality: 50,
   });
   try {
-    const product = await Products.create({
+    const product = await productModel.create({
       name,
       description,
       price,
@@ -83,7 +88,7 @@ export async function createProduct(req: Request, res: Response) {
 
 export async function updateProduct(req: Request, res: Response) {
   try {
-    const product = await Products.findById(req.params.id);
+    const product = await productModel.findById(req.params.id);
     if (!product) {
       return res
         .status(400)
@@ -103,7 +108,7 @@ export async function updateProduct(req: Request, res: Response) {
       image = result.secure_url;
     }
 
-    const updatedProduct = await Products.findByIdAndUpdate(
+    const updatedProduct = await productModel.findByIdAndUpdate(
       req.params.id,
       { name, description, quantity, price, image, type, deliveryFee },
       { new: true }
@@ -115,7 +120,7 @@ export async function updateProduct(req: Request, res: Response) {
 
 export async function getProducts(req: Request, res: Response) {
   try {
-    const items = await Products.find();
+    const items = await getAllProducts();
 
     res.status(200).json(items);
   } catch (error) {
@@ -126,7 +131,7 @@ export async function getProducts(req: Request, res: Response) {
 
 export async function getProduct(req: Request, res: Response) {
   try {
-    const item = await Products.findById(req.params.id);
+    const item = await getProductById(req.params.id);
     if (!item) {
       return res.status(404).json({ error: "This product does not exist" });
     } else {
@@ -134,20 +139,14 @@ export async function getProduct(req: Request, res: Response) {
     }
   } catch (error) {
     logger.error(`Product does not exist`);
-    res.status(400).json({ message: "This product does not exist" });
+    res.status(400).json(error);
   }
 }
 
 export async function deleteProduct(req: Request, res: Response) {
   try {
-    const item = await Products.findById(req.params.id);
-    if (!item) {
-      return res.status(404).json({ error: "Product not found " });
-    } else {
-      await Products.findByIdAndDelete(req.params.id);
-      logger.info(`Product - ${item.id} deleted successfully`);
-      res.status(200).json({ message: "Product deleted" });
-    }
+    await deleteProductById(req.params.id);
+    return res.status(200).json({ message: "Product deleted" });
   } catch (error) {
     logger.error("Item not found");
     res.status(400).json({ message: "Product not found" });

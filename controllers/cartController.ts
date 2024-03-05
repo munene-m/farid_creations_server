@@ -8,7 +8,7 @@ import {
   updateCartById,
   getCartItemById,
 } from "../models/cart";
-import Products from "../models/products";
+import { getProductById } from "../models/products";
 import { getUserById } from "../models/auth";
 import logger from "../helpers/logging";
 import { validateCartFields } from "../utils/validation";
@@ -20,7 +20,7 @@ export async function addCartItem(req: Request, res: Response) {
     return res.status(400).json(validationError);
   }
   try {
-    const product = await Products.findById(productId);
+    const product = await getProductById(productId);
     const customer = await getUserById(customerId);
 
     if (!product) {
