@@ -49,3 +49,8 @@ app.listen(PORT, () => {
   );
   // logger.info(`Server running on port ${PORT}`)
 });
+
+process.on("SIGINT", async () => {
+  console.log("Shutting down...\n", "Goodbye!");
+  process.exit(0);
+});
