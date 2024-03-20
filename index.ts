@@ -42,6 +42,12 @@ app.use(
   swaggerUi.setup(swaggerDocument, options)
 );
 
+app.get("/current", (req, res) => {
+  const currentTime = new Date().toLocaleString();
+  console.log(`The current time is ${currentTime}`);
+  req.destroy();
+});
+
 // Start the server
 app.listen(PORT, () => {
   console.log(
