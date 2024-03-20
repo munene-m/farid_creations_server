@@ -80,7 +80,9 @@ const userProtect = async (req: Request, res: Response, next: NextFunction) => {
       }
     }
   } else {
-    return res.status(401).json({ error: "Unauthorized attempt" });
+    return res
+      .status(401)
+      .json({ error: "Unauthorized attempt. Token required." });
   }
 };
 
