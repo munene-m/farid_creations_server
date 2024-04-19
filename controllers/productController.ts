@@ -32,7 +32,7 @@ const options = {
 cloudinary.v2.config(options);
 
 export async function createProduct(req: Request, res: Response) {
-  const { name, description, price, type, deliveryFee } = req.body;
+  const { name, description, price, type, deliveryFee, packagingType } = req.body;
   const image = req.file;
   const validationError = validateProductFields(
     name,
@@ -61,6 +61,7 @@ export async function createProduct(req: Request, res: Response) {
       price,
       type,
       deliveryFee,
+      packagingType,
       image: result.secure_url,
     });
     if (!product) {
@@ -75,6 +76,7 @@ export async function createProduct(req: Request, res: Response) {
       price: product.price,
       type: product.type,
       deliveryFee: product.deliveryFee,
+      packagingType:product.packagingType,
       image: product.image,
     });
     logger.info(`Product - ${product.id} has been created successfully`);
@@ -92,7 +94,7 @@ export async function updateProduct(req: Request, res: Response) {
         .status(400)
         .json({ error: "The product you tried to update does not exist" });
     }
-    const { name, description, price, type, deliveryFee } = req.body;
+    const { name, description, price, type, deliveryFee, packagingType } = req.body;
     let image = product.image;
 
     if (req.file) {
@@ -108,7 +110,7 @@ export async function updateProduct(req: Request, res: Response) {
 
     const updatedProduct = await productModel.findByIdAndUpdate(
       req.params.id,
-      { name, description, price, image, type, deliveryFee },
+      { name, description, price, image, type, deliveryFee, packagingType },
       { new: true }
     );
     logger.info(`Product - ${updatedProduct?.id} updated successfully!`);

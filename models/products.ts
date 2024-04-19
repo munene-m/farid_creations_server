@@ -12,6 +12,9 @@ const productSchema = new mongoose.Schema({
   type: {
     type: String,
   },
+  packagingType:{
+    type: String
+  },
   price: {
     type: String,
     required: true,
