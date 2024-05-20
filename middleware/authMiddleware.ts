@@ -36,7 +36,6 @@ const userProtect = async (req: Request, res: Response, next: NextFunction) => {
         token,
         process.env.JWT_SECRET || ""
       ) as DecodedToken;
-      console.log(decoded);
 
       const user = await getUserById(decoded.id).select("-password");
 
