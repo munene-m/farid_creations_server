@@ -1,105 +1,56 @@
 import { ObjectId } from "mongoose";
+import { z } from "zod"
 
-export function validateUserFields(email: string, password: string) {
-  if (!email || !password) {
-    switch (true) {
-      case !email:
-        return { message: "Email is required" };
-      case !password:
-        return { message: "Password is required" };
-      default:
-        return { message: "Please enter all required fields" };
-    }
-  }
-  const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
-  if (!email.match(emailRegex)) {
-    return { message: "Invalid email address" };
-  }
-  if (password.length < 8) {
-    return { message: "Password must be at least 8 characters long" };
-  }
-
-  if (!/[A-Z]/.test(password)) {
-    return { message: "Password must contain at least one uppercase letter" };
-  }
-
-  if (!/[!@#$%^&*]/.test(password)) {
-    return { message: "Password must contain at least one special character" };
-  }
-
-  return null; // No validation message
+const validatePassword = (password: string) => {
+  const hasMinLength = password.length >= 8;
+  const hasLetters = /[a-zA-Z]/.test(password);
+  const hasNumbers = /[0-9]/.test(password);
+  const hasSpecialChars = /[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]/.test(password);
+  return hasMinLength && hasLetters && hasNumbers && hasSpecialChars;
 }
 
-export function validateLoginFields(email: string, password: string) {
-  if (!email || !password) {
-    switch (true) {
-      case !email:
-        return { message: "Email is required" };
-      case !password:
-        return { message: "Password is required" };
-      default:
-        return { message: "Please enter all required fields" };
-    }
-  }
-  return null;
-}
+const passwordSchema = z
+  .string({
+    required_error: "Password required",
+    invalid_type_error: "Password must be string",
+  })
+  .refine(validatePassword, { message: "Password must be at least 8 characters long, contain at least one letter, one number, and one special character" })
 
-export function validateProductFields(
-  name: string,
-  description: string,
-  price: string,
-  type: string,
-  image: Express.Multer.File | undefined
-) {
-  if (!name || !price || !description || !image || !type) {
-    if (!name) {
-      return { message: "Item name is required" };
-    } else if (!price) {
-      return { message: "Price is required" };
-    } else if (!description) {
-      return { message: "Item description is required" };
-    } else if (!image) {
-      return { message: "Image is required" };
-    } else if (!type) {
-      return { message: "Product type is required" };
-    } else {
-      return { message: "Please enter all required fields" };
-    }
-  }
-  return null;
-}
 
-export function validateWorkFields(
-  title: string,
-  description: string,
-  image: Express.Multer.File | undefined
-) {
-  if (!title || !description || !image) {
-    if (!title) {
-      return { message: "Item name is required" };
-    } else if (!image) {
-      return { message: "Image is required" };
-    } else if (!description) {
-      return { message: "Item description is required" };
-    } else {
-      return { message: "Please enter all required fields" };
-    }
-  }
-  return null;
-}
+export const validateUserSchema = z.object({
+  email: z.string().email(),
+  password: passwordSchema
+})
 
-export function validateCartFields(customerId: ObjectId, productId: ObjectId) {
-  if (!customerId || !productId) {
-    if (!customerId) {
-      return { message: "customerId is required" };
-    } else if (!productId) {
-      return { message: "productId is required" };
-    } else {
-      return { message: "Please enter all required fields" };
-    }
-  }
-  return null;
-}
+export const validateLoginSchema = z.object({
+  email: z.string().email(),
+  password: passwordSchema
+})
+
+export const validateProductSchema = z.object({
+  name: z.string().min(1, { message: "Item name is required" }),
+  description: z.string().min(1, { message: "Item description is required" }),
+  price: z.number().min(0, { message: "Price is required" }),
+  type: z.string().min(1, { message: "Product type is required" }),
+  image: z.string().min(1, { message: "Image is required" })
+})
+
+export const validateWorkSchema = z.object({
+  title: z.string().min(1, { message: "Item name is required" }),
+  description: z.string().min(1, { message: "Item description is required" }),
+  image: z.string().min(1, { message: "Image is required" })
+})
+
+export const validateCartSchema = z.object({
+  customerId: z.string().min(1, { message: "Customer ID is required" }),
+  productId: z.number().min(1, { message: "Product ID is required" })
+})
+
+export const validateCartIdSchema = z.object({
+  itemId: z.number()
+})
+
+
 
 // import { z, ZodError } from "zod";
 

@@ -3,14 +3,15 @@ import bodyParser from "body-parser";
 import dotenv from "dotenv";
 import helmet from "helmet";
 import cors from "cors";
-import { connectDB } from "./config/db";
+import { db } from "./db";
+import config  from "./src/config"
 import swaggerUi from "swagger-ui-express";
-import swaggerDocument from "./utils/swagger.json";
-import authRoute from "./routes/authRoute";
-import productRoute from "./routes/productRoute";
-import workRoute from "./routes/workRoute";
-import cartRoute from "./routes/cartRoute";
-import paymentRoute from "./routes/paymentRoute";
+import swaggerDocument from "./src/utils/swagger.json";
+import authRoute from "./src/routes/authRoute";
+import productRoute from "./src/routes/productRoute";
+import workRoute from "./src/routes/workRoute";
+import cartRoute from "./src/routes/cartRoute";
+import paymentRoute from "./src/routes/paymentRoute";
 
 const options = {
   swaggerOptions: {
@@ -21,40 +22,51 @@ const options = {
 };
 
 const app = express();
-const PORT = process.env.PORT || 8000;
+const PORT = config.port;
 dotenv.config();
 // Middleware setup
-connectDB();
-app.use(express.json());
-app.use(cors());
-app.use(express.urlencoded({ extended: false }));
-app.use(bodyParser.json());
-app.use(helmet());
+const startServer = async () => {
+  try {
+    await db.query.userTable.findMany({ limit: 1 });
+    console.log("PostgreSQL connected successfully");
 
-app.use("/api/v1/auth", authRoute);
-app.use("/api/v1/products", productRoute);
-app.use("/api/v1/work", workRoute);
-app.use("/api/v1/cart", cartRoute);
-app.use("/api/v1/payment", paymentRoute);
-app.use(
-  "/api-docs",
-  swaggerUi.serve,
-  swaggerUi.setup(swaggerDocument, options)
-);
+    app.use(express.json());
+    app.use(cors());
+    app.use(express.urlencoded({ extended: false }));
+    app.use(bodyParser.json());
+    app.use(helmet());
 
-app.get("/current", (req, res) => {
-  const currentTime = new Date().toLocaleString();
-  console.log(`The current time is ${currentTime}`);
-  req.destroy();
-});
+    app.use("/api/v1/auth", authRoute);
+    app.use("/api/v1/products", productRoute);
+    app.use("/api/v1/work", workRoute);
+    app.use("/api/v1/cart", cartRoute);
+    app.use("/api/v1/payment", paymentRoute);
+    app.use(
+      "/api-docs",
+      swaggerUi.serve,
+      swaggerUi.setup(swaggerDocument, options)
+    );
 
-// Start the server
-app.listen(PORT, () => {
-  console.log(
-    `Server running on port ${PORT}. Access the docs on http://localhost:${PORT}/api-docs`
-  );
-  // logger.info(`Server running on port ${PORT}`)
-});
+    app.get("/current", (req, res) => {
+      const currentTime = new Date().toLocaleString();
+      console.log(`The current time is ${currentTime}`);
+      req.destroy();
+    });
+
+    // Start the server
+    app.listen(PORT, () => {
+      console.log(
+        `Server running on port ${PORT}. Access the docs on http://localhost:${PORT}/api-docs`
+      );
+      // logger.info(`Server running on port ${PORT}`)
+    });
+  } catch (err: any) {
+    console.error("Failed to connect to PostgreSQL", err);
+    process.exit(1);
+  }
+};
+
+startServer();
 
 process.on("SIGINT", async () => {
   console.log("Shutting down...\n", "Goodbye!");
